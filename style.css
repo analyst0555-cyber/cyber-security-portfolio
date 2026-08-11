@@ -162,3 +162,92 @@ footer {
     font-size: 14px;
     margin-top: 10px;
 }
+/* =========================
+   MOBILE RESPONSIVE DESIGN
+   ========================= */
+
+@media (max-width: 600px) {
+
+    body {
+        width: 100%;
+        overflow-x: hidden;
+    }
+
+    nav {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px;
+    }
+
+    nav a {
+        font-size: 14px;
+        padding: 6px 8px;
+    }
+
+    header {
+        padding: 30px 15px;
+    }
+
+    header h1 {
+        font-size: 32px;
+    }
+
+    header p {
+        font-size: 16px;
+    }
+
+    main {
+        width: 100%;
+        padding: 15px;
+        box-sizing: border-box;
+    }
+
+    .card {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .topics {
+        display: block;
+    }
+
+    .topics .card {
+        width: 100%;
+    }
+
+    input,
+    button {
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* Make wide tables scroll instead of breaking the page */
+
+    table {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    th,
+    td {
+        padding: 8px;
+    }
+
+    pre {
+        max-width: 100%;
+        overflow-x: auto;
+        box-sizing: border-box;
+    }
+
+    .project-image img {
+        width: 100%;
+        height: auto;
+    }
+
+}
