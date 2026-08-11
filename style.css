@@ -145,3 +145,20 @@ footer {
         font-size: 32px;
     }
 }
+.project-image {
+    margin-top: 20px;
+}
+
+.project-image img {
+    width: 100%;
+    max-width: 900px;
+    display: block;
+    margin: 0 auto;
+    border-radius: 8px;
+}
+
+.project-image p {
+    text-align: center;
+    font-size: 14px;
+    margin-top: 10px;
+}
