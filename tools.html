@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Cybersecurity Tools</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- Navigation -->
+
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="networking.html">Networking</a>
+        <a href="linux.html">Linux</a>
+        <a href="soc.html">SOC Analyst</a>
+        <a href="tools.html">Tools</a>
+        <a href="projects.html">Projects</a>
+        <a href="about.html">About Me</a>
+        <a href="resume.html">Resume</a>
+    </nav>
+
+
+    <!-- Header -->
+
+    <header>
+        <h1>Cybersecurity Tools</h1>
+        <p>Simple tools for learning cybersecurity.</p>
+    </header>
+
+
+    <main>
+
+
+        <!-- ================================= -->
+        <!-- PASSWORD STRENGTH CHECKER -->
+        <!-- ================================= -->
+
+        <div class="card">
+
+            <h2>Password Strength Checker</h2>
+
+            <input
+                type="password"
+                id="password"
+                placeholder="Enter a test password"
+            >
+
+            <button onclick="checkPassword()">
+                Check Password
+            </button>
+
+            <p id="result"></p>
+
+        </div>
+
+
+
+        <!-- ================================= -->
+        <!-- IP / SUBNET CALCULATOR -->
+        <!-- ================================= -->
+
+        <div class="card">
+
+            <h2>IP / Subnet Calculator</h2>
+
+            <input
+                type="text"
+                id="ipAddress"
+                placeholder="IP Address e.g. 192.168.1.10"
+            >
+
+            <input
+                type="text"
+                id="subnetMask"
+                placeholder="Subnet Mask e.g. 255.255.255.0"
+            >
+
+            <button onclick="calculateSubnet()">
+                Calculate
+            </button>
+
+            <div id="subnetResult"></div>
+
+        </div>
+
+
+
+        <!-- ================================= -->
+        <!-- PORT INFORMATION CHECKER -->
+        <!-- ================================= -->
+
+        <div class="card">
+
+            <h2>Port Information Checker</h2>
+
+            <p>
+                Enter any port number from 0 to 65535.
+            </p>
+
+            <input
+                type="number"
+                id="portNumber"
+                min="0"
+                max="65535"
+                placeholder="Example: 443"
+            >
+
+            <button onclick="checkPort()">
+                Check Port
+            </button>
+
+            <div id="portResult"></div>
+
+        </div>
+
+
+
+        <!-- ================================= -->
+        <!-- PORT SEARCH -->
+        <!-- ================================= -->
+
+        <div class="card">
+
+            <h2>Search Common Ports</h2>
+
+            <input
+                type="text"
+                id="portSearch"
+                placeholder="Search port or service..."
+                onkeyup="searchPorts()"
+            >
+
+            <table id="portTable">
+
+                <thead>
+
+                    <tr>
+                        <th>Port</th>
+                        <th>Protocol</th>
+                        <th>Service</th>
+                        <th>Description</th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    <tr>
+                        <td>20</td>
+                        <td>TCP</td>
+                        <td>FTP</td>
+                        <td>FTP data transfer</td>
+                    </tr>
+
+                    <tr>
+                        <td>21</td>
+                        <td>TCP</td>
+                        <td>FTP</td>
+                        <td>FTP control</td>
+                    </tr>
+
+                    <tr>
+                        <td>22</td>
+                        <td>TCP</td>
+                        <td>SSH</td>
+                        <td>Secure Shell</td>
+                    </tr>
+
+                    <tr>
+                        <td>23</td>
+                        <td>TCP</td>
+                        <td>Telnet</td>
+                        <td>Remote terminal access</td>
+                    </tr>
+
+                    <tr>
+                        <td>25</td>
+                        <td>TCP</td>
+                        <td>SMTP</td>
+                        <td>Email transfer</td>
+                    </tr>
+
+                    <tr>
+                        <td>53</td>
+                        <td>TCP/UDP</td>
+                        <td>DNS</td>
+                        <td>Domain Name System</td>
+                    </tr>
+
+                    <tr>
+                        <td>67</td>
+                        <td>UDP</td>
+                        <td>DHCP</td>
+                        <td>DHCP server</td>
+                    </tr>
+
+                    <tr>
+                        <td>68</td>
+                        <td>UDP</td>
+                        <td>DHCP</td>
+                        <td>DHCP client</td>
+                    </tr>
+
+                    <tr>
+                        <td>69</td>
+                        <td>UDP</td>
+                        <td>TFTP</td>
+                        <td>Trivial File Transfer Protocol</td>
+                    </tr>
+
+                    <tr>
+                        <td>80</td>
+                        <td>TCP</td>
+                        <td>HTTP</td>
+                        <td>Web traffic</td>
+                    </tr>
+
+                    <tr>
+                        <td>110</td>
+                        <td>TCP</td>
+                        <td>POP3</td>
+                        <td>Email retrieval</td>
+                    </tr>
+
+                    <tr>
+                        <td>123</td>
+                        <td>UDP</td>
+                        <td>NTP</td>
+                        <td>Network Time Protocol</td>
+                    </tr>
+
+                    <tr>
+                        <td>135</td>
+                        <td>TCP</td>
+                        <td>MS RPC</td>
+                        <td>Microsoft RPC</td>
+                    </tr>
+
+                    <tr>
+                        <td>137</td>
+                        <td>UDP</td>
+                        <td>NetBIOS</td>
+                        <td>NetBIOS Name Service</td>
+                    </tr>
+
+                    <tr>
+                        <td>138</td>
+                        <td>UDP</td>
+                        <td>NetBIOS</td>
+                        <td>NetBIOS Datagram Service</td>
+                    </tr>
+
+                    <tr>
+                        <td>139</td>
+                        <td>TCP</td>
+                        <td>NetBIOS</td>
+                        <td>NetBIOS Session Service</td>
+                    </tr>
+
+                    <tr>
+                        <td>143</td>
+                        <td>TCP</td>
+                        <td>IMAP</td>
+                        <td>Email retrieval</td>
+                    </tr>
+
+                    <tr>
+                        <td>161</td>
+                        <td>UDP</td>
+                        <td>SNMP</td>
+                        <td>Network management</td>
+                    </tr>
+
+                    <tr>
+                        <td>162</td>
+                        <td>UDP</td>
+                        <td>SNMP Trap</td>
+                        <td>SNMP notifications</td>
+                    </tr>
+
+                    <tr>
+                        <td>389</td>
+                        <td>TCP/UDP</td>
+                        <td>LDAP</td>
+                        <td>Directory services</td>
+                    </tr>
+
+                    <tr>
+                        <td>443</td>
+                        <td>TCP</td>
+                        <td>HTTPS</td>
+                        <td>Secure web traffic</td>
+                    </tr>
+
+                    <tr>
+                        <td>445</td>
+                        <td>TCP</td>
+                        <td>SMB</td>
+                        <td>Windows file sharing</td>
+                    </tr>
+
+                    <tr>
+                        <td>514</td>
+                        <td>UDP</td>
+                        <td>Syslog</td>
+                        <td>System logging</td>
+                    </tr>
+
+                    <tr>
+                        <td>587</td>
+                        <td>TCP</td>
+                        <td>SMTP Submission</td>
+                        <td>Email submission</td>
+                    </tr>
+
+                    <tr>
+                        <td>636</td>
+                        <td>TCP</td>
+                        <td>LDAPS</td>
+                        <td>Secure LDAP</td>
+                    </tr>
+
+                    <tr>
+                        <td>993</td>
+                        <td>TCP</td>
+                        <td>IMAPS</td>
+                        <td>Secure IMAP</td>
+                    </tr>
+
+                    <tr>
+                        <td>995</td>
+                        <td>TCP</td>
+                        <td>POP3S</td>
+                        <td>Secure POP3</td>
+                    </tr>
+
+                    <tr>
+                        <td>1433</td>
+                        <td>TCP</td>
+                        <td>MS SQL</td>
+                        <td>Microsoft SQL Server</td>
+                    </tr>
+
+                    <tr>
+                        <td>1521</td>
+                        <td>TCP</td>
+                        <td>Oracle</td>
+                        <td>Oracle database</td>
+                    </tr>
+
+                    <tr>
+                        <td>2049</td>
+                        <td>TCP/UDP</td>
+                        <td>NFS</td>
+                        <td>Network File System</td>
+                    </tr>
+
+                    <tr>
+                        <td>3306</td>
+                        <td>TCP</td>
+                        <td>MySQL</td>
+                        <td>MySQL database</td>
+                    </tr>
+
+                    <tr>
+                        <td>3389</td>
+                        <td>TCP</td>
+                        <td>RDP</td>
+                        <td>Remote Desktop Protocol</td>
+                    </tr>
+
+                    <tr>
+                        <td>5432</td>
+                        <td>TCP</td>
+                        <td>PostgreSQL</td>
+                        <td>PostgreSQL database</td>
+                    </tr>
+
+                    <tr>
+                        <td>5900</td>
+                        <td>TCP</td>
+                        <td>VNC</td>
+                        <td>Remote desktop</td>
+                    </tr>
+
+                    <tr>
+                        <td>8080</td>
+                        <td>TCP</td>
+                        <td>HTTP Alternate</td>
+                        <td>Alternative web service</td>
+                    </tr>
+
+                    <tr>
+                        <td>8443</td>
+                        <td>TCP</td>
+                        <td>HTTPS Alternate</td>
+                        <td>Alternative HTTPS service</td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </main>
+
+
+
+    <!-- ================================= -->
+    <!-- JAVASCRIPT -->
+    <!-- ================================= -->
+
+    <script>
+
+
+        // =========================
+        // PASSWORD CHECKER
+        // =========================
+
+        function checkPassword() {
+
+            let password =
+                document.getElementById("password").value;
+
+            let result =
+                document.getElementById("result");
+
+            let score = 0;
+
+
+            if (password.length >= 8) {
+                score++;
+            }
+
+
+            if (/[A-Z]/.test(password)) {
+                score++;
+            }
+
+
+            if (/[a-z]/.test(password)) {
+                score++;
+            }
+
+
+            if (/[0-9]/.test(password)) {
+                score++;
+            }
+
+
+            if (/[^A-Za-z0-9]/.test(password)) {
+                score++;
+            }
+
+
+            if (password.length === 0) {
+
+                result.textContent =
+                    "Please enter a password.";
+
+            }
+
+            else if (score <= 2) {
+
+                result.textContent =
+                    "Password strength: Weak";
+
+            }
+
+            else if (score <= 4) {
+
+                result.textContent =
+                    "Password strength: Medium";
+
+            }
+
+            else {
+
+                result.textContent =
+                    "Password strength: Strong";
+
+            }
+
+        }
+
+
+
+        // =========================
+        // SUBNET CALCULATOR
+        // =========================
+
+        function calculateSubnet() {
+
+            let ip =
+                document.getElementById("ipAddress").value;
+
+            let mask =
+                document.getElementById("subnetMask").value;
+
+            let result =
+                document.getElementById("subnetResult");
+
+
+            let ipParts = ip.split(".");
+            let maskParts = mask.split(".");
+
+
+            if (
+                ipParts.length !== 4 ||
+                maskParts.length !== 4
+            ) {
+
+                result.innerHTML =
+                    "<p>Please enter a valid IP address and subnet mask.</p>";
+
+                return;
+
+            }
+
+
+            let network = [];
+            let broadcast = [];
+
+
+            for (let i = 0; i < 4; i++) {
+
+                let ipNumber =
+                    parseInt(ipParts[i]);
+
+                let maskNumber =
+                    parseInt(maskParts[i]);
+
+
+                network[i] =
+                    ipNumber & maskNumber;
+
+
+                broadcast[i] =
+                    network[i] |
+                    (255 - maskNumber);
+
+            }
+
+
+            result.innerHTML =
+
+                "<p><strong>Network Address:</strong> "
+                + network.join(".")
+                + "</p>"
+
+                +
+
+                "<p><strong>Broadcast Address:</strong> "
+                + broadcast.join(".")
+                + "</p>";
+
+        }
+
+
+
+        // =========================
+        // PORT DATABASE
+        // =========================
+
+        const portDatabase = {
+
+            20: ["TCP", "FTP Data", "FTP data transfer"],
+            21: ["TCP", "FTP", "File Transfer Protocol"],
+            22: ["TCP", "SSH", "Secure Shell"],
+            23: ["TCP", "Telnet", "Remote terminal access"],
+            25: ["TCP", "SMTP", "Email transfer"],
+            53: ["TCP/UDP", "DNS", "Domain Name System"],
+            67: ["UDP", "DHCP", "DHCP server"],
+            68: ["UDP", "DHCP", "DHCP client"],
+            69: ["UDP", "TFTP", "Trivial File Transfer Protocol"],
+            80: ["TCP", "HTTP", "Web traffic"],
+            110: ["TCP", "POP3", "Email retrieval"],
+            123: ["UDP", "NTP", "Network Time Protocol"],
+            135: ["TCP", "MS RPC", "Microsoft RPC"],
+            137: ["UDP", "NetBIOS", "NetBIOS Name Service"],
+            138: ["UDP", "NetBIOS", "NetBIOS Datagram Service"],
+            139: ["TCP", "NetBIOS", "NetBIOS Session Service"],
+            143: ["TCP", "IMAP", "Email retrieval"],
+            161: ["UDP", "SNMP", "Network management"],
+            162: ["UDP", "SNMP Trap", "SNMP notifications"],
+            389: ["TCP/UDP", "LDAP", "Directory services"],
+            443: ["TCP", "HTTPS", "Secure web traffic"],
+            445: ["TCP", "SMB", "Windows file sharing"],
+            465: ["TCP", "SMTPS", "SMTP over TLS"],
+            514: ["UDP", "Syslog", "System logging"],
+            587: ["TCP", "SMTP Submission", "Email submission"],
+            636: ["TCP", "LDAPS", "Secure LDAP"],
+            989: ["TCP", "FTPS Data", "FTP over TLS data"],
+            990: ["TCP", "FTPS", "FTP over TLS"],
+            993: ["TCP", "IMAPS", "Secure IMAP"],
+            995: ["TCP", "POP3S", "Secure POP3"],
+            1433: ["TCP", "MS SQL", "Microsoft SQL Server"],
+            1521: ["TCP", "Oracle", "Oracle database"],
+            1723: ["TCP", "PPTP", "Point-to-Point Tunneling Protocol"],
+            1812: ["UDP", "RADIUS", "Authentication"],
+            1813: ["UDP", "RADIUS", "Accounting"],
+            2049: ["TCP/UDP", "NFS", "Network File System"],
+            3128: ["TCP", "Proxy", "Common proxy service"],
+            3306: ["TCP", "MySQL", "MySQL database"],
+            3389: ["TCP", "RDP", "Remote Desktop Protocol"],
+            5060: ["UDP/TCP", "SIP", "Session Initiation Protocol"],
+            5061: ["TCP", "SIPS", "Secure SIP"],
+            5432: ["TCP", "PostgreSQL", "PostgreSQL database"],
+            5900: ["TCP", "VNC", "Remote desktop"],
+            6379: ["TCP", "Redis", "Redis database"],
+            8080: ["TCP", "HTTP Alternate", "Alternative HTTP service"],
+            8443: ["TCP", "HTTPS Alternate", "Alternative HTTPS service"],
+            9200: ["TCP", "Elasticsearch", "Elasticsearch service"],
+            27017: ["TCP", "MongoDB", "MongoDB database"]
+
+        };
+
+
+
+        // =========================
+        // PORT CHECKER
+        // =========================
+
+        function checkPort() {
+
+            let input =
+                document.getElementById("portNumber").value;
+
+            let result =
+                document.getElementById("portResult");
+
+
+            if (input === "") {
+
+                result.innerHTML =
+                    "<p>Please enter a port number.</p>";
+
+                return;
+
+            }
+
+
+            let port =
+                Number(input);
+
+
+            if (
+                !Number.isInteger(port) ||
+                port < 0 ||
+                port > 65535
+            ) {
+
+                result.innerHTML =
+                    "<p>Please enter a valid port between 0 and 65535.</p>";
+
+                return;
+
+            }
+
+
+            if (portDatabase[port]) {
+
+                let info =
+                    portDatabase[port];
+
+
+                result.innerHTML =
+
+                    "<p><strong>Port:</strong> "
+                    + port
+                    + "</p>"
+
+                    +
+
+                    "<p><strong>Protocol:</strong> "
+                    + info[0]
+                    + "</p>"
+
+                    +
+
+                    "<p><strong>Service:</strong> "
+                    + info[1]
+                    + "</p>"
+
+                    +
+
+                    "<p><strong>Description:</strong> "
+                    + info[2]
+                    + "</p>";
+
+            }
+
+            else {
+
+                result.innerHTML =
+
+                    "<p><strong>Port:</strong> "
+                    + port
+                    + "</p>"
+
+                    +
+
+                    "<p>No service is listed in this website's common-port database.</p>"
+
+                    +
+
+                    "<p>This does NOT mean the port is unused or closed.</p>";
+
+            }
+
+        }
+
+
+
+        // =========================
+        // SEARCH PORT TABLE
+        // =========================
+
+        function searchPorts() {
+
+            let input =
+                document
+                    .getElementById("portSearch")
+                    .value
+                    .toLowerCase();
+
+
+            let rows =
+                document.querySelectorAll(
+                    "#portTable tbody tr"
+                );
+
+
+            rows.forEach(function(row) {
+
+                let text =
+                    row.textContent.toLowerCase();
+
+
+                if (text.includes(input)) {
+
+                    row.style.display = "";
+
+                }
+
+                else {
+
+                    row.style.display = "none";
+
+                }
+
+            });
+
+        }
+
+
+    </script>
+
+</body>
+
+</html>
