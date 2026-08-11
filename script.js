@@ -227,3 +227,149 @@ async function analyzeDomain() {
     }
 
 }
+
+async function checkEmailSecurity() {
+
+    const input = document.getElementById("emailInput");
+    const result = document.getElementById("emailResult");
+
+    if (!input || !result) {
+        return;
+    }
+
+    const email = input.value.trim().toLowerCase();
+
+    if (email === "") {
+        result.innerHTML =
+            "<p>⚠️ Please enter an email address.</p>";
+        return;
+    }
+
+    // Basic email format validation
+    const emailPattern =
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailPattern.test(email)) {
+
+        result.innerHTML =
+            "<p>❌ Invalid email format.</p>";
+
+        return;
+    }
+
+    const parts = email.split("@");
+
+    const username = parts[0];
+    const domain = parts[1];
+
+    result.innerHTML =
+        "<p>🔎 Checking mail configuration for " +
+        domain +
+        "...</p>";
+
+    try {
+
+        const response = await fetch(
+            `https://dns.google/resolve?name=${encodeURIComponent(domain)}&type=MX`
+        );
+
+        if (!response.ok) {
+            throw new Error("DNS request failed");
+        }
+
+        const data = await response.json();
+
+        const mxRecords = data.Answer || [];
+
+        let html = `
+
+            <div class="card">
+
+                <h3>📧 Email Analysis</h3>
+
+                <p>
+                    <strong>Email:</strong>
+                    ${email}
+                </p>
+
+                <p>
+                    <strong>Domain:</strong>
+                    ${domain}
+                </p>
+
+                <p>
+                    <strong>Format:</strong>
+                    ✅ Valid
+                </p>
+
+        `;
+
+        if (mxRecords.length > 0) {
+
+            html += `
+
+                <h3>📬 Mail Servers</h3>
+
+                <p>
+                    ✅ This domain publishes MX records.
+                </p>
+
+                <ul>
+            `;
+
+            mxRecords.forEach(record => {
+
+                html +=
+                    `<li>${record.data}</li>`;
+
+            });
+
+            html += `
+                </ul>
+            `;
+
+        } else {
+
+            html += `
+
+                <h3>📬 Mail Servers</h3>
+
+                <p>
+                    ⚠️ No MX records were found.
+                </p>
+
+            `;
+
+        }
+
+        html += `
+
+                <p>
+                    <small>
+                        This check analyzes the email's
+                        domain and public DNS mail configuration.
+                        It does not verify whether the mailbox
+                        itself exists.
+                    </small>
+                </p>
+
+            </div>
+
+        `;
+
+        result.innerHTML = html;
+
+    } catch (error) {
+
+        console.error(error);
+
+        result.innerHTML = `
+
+            <p>
+                ❌ Unable to retrieve mail configuration.
+            </p>
+
+        `;
+
+    }
+}
