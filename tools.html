@@ -217,6 +217,64 @@
 
 </div>
 
+<!-- HASH IDENTIFIER -->
+
+<div class="card">
+
+    <h2>🔢 Hash Identifier</h2>
+
+    <p>
+        Identify possible hash formats based on their
+        length and hexadecimal character pattern.
+    </p>
+
+    <input
+        type="text"
+        id="hashInput"
+        placeholder="Enter a hash"
+    >
+
+    <button type="button" onclick="identifyHash()">
+        Identify Hash
+    </button>
+
+    <div id="hashResult"></div>
+
+</div>
+
+
+<!-- HASH GENERATOR -->
+
+<div class="card">
+
+    <h2>🔐 Hash Generator</h2>
+
+    <p>
+        Generate cryptographic hashes from text using
+        the browser's Web Crypto API.
+    </p>
+
+    <input
+        type="text"
+        id="hashTextInput"
+        placeholder="Enter text to hash"
+    >
+
+    <button type="button" onclick="generateHash('SHA-256')">
+        SHA-256
+    </button>
+
+    <button type="button" onclick="generateHash('SHA-384')">
+        SHA-384
+    </button>
+
+    <button type="button" onclick="generateHash('SHA-512')">
+        SHA-512
+    </button>
+
+    <div id="hashGenerateResult"></div>
+
+</div>
 
 
         <!-- ================================= -->

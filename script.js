@@ -1,6 +1,60 @@
 function checkPassword() {
-    alert("JavaScript is working!");
+
+    const password = document.getElementById("password");
+    const result = document.getElementById("result");
+
+    if (!password || !result) {
+        return;
+    }
+
+    const value = password.value;
+
+    if (value === "") {
+        result.textContent = "⚠️ Please enter a password.";
+        return;
+    }
+
+    let score = 0;
+
+    if (value.length >= 8) {
+        score++;
+    }
+
+    if (/[A-Z]/.test(value)) {
+        score++;
+    }
+
+    if (/[a-z]/.test(value)) {
+        score++;
+    }
+
+    if (/[0-9]/.test(value)) {
+        score++;
+    }
+
+    if (/[^A-Za-z0-9]/.test(value)) {
+        score++;
+    }
+
+
+    if (score <= 2) {
+
+        result.textContent =
+            "🔴 Weak password";
+
+    } else if (score === 3 || score === 4) {
+
+        result.textContent =
+            "🟡 Medium password";
+
+    } else {
+
+        result.textContent =
+            "🟢 Strong password";
+
+    }
 }
+
 
 async function analyzeDomain() {
 
@@ -745,4 +799,174 @@ function analyzeURL() {
         </div>
 
     `;
+}
+function identifyHash() {
+
+    const input = document.getElementById("hashInput");
+    const result = document.getElementById("hashResult");
+
+    if (!input || !result) {
+        return;
+    }
+
+    const hash = input.value.trim().toLowerCase();
+
+    if (hash === "") {
+        result.innerHTML =
+            "<p>⚠️ Please enter a hash.</p>";
+        return;
+    }
+
+    const hexPattern = /^[a-f0-9]+$/;
+
+    if (!hexPattern.test(hash)) {
+        result.innerHTML =
+            "<p>❌ This does not appear to be a hexadecimal hash.</p>";
+        return;
+    }
+
+    const length = hash.length;
+
+    let possibleHashes = [];
+
+    if (length === 32) {
+        possibleHashes.push("MD5");
+    }
+
+    if (length === 40) {
+        possibleHashes.push("SHA-1");
+    }
+
+    if (length === 56) {
+        possibleHashes.push("SHA-224");
+    }
+
+    if (length === 64) {
+        possibleHashes.push("SHA-256");
+    }
+
+    if (length === 96) {
+        possibleHashes.push("SHA-384");
+    }
+
+    if (length === 128) {
+        possibleHashes.push("SHA-512");
+    }
+
+    if (possibleHashes.length === 0) {
+
+        result.innerHTML = `
+
+            <p>
+                ⚠️ No common hash format matches
+                this length.
+            </p>
+
+            <p>
+                Length: ${length} hexadecimal characters
+            </p>
+
+        `;
+
+        return;
+    }
+
+    result.innerHTML = `
+
+        <h3>🔢 Possible Hash Format(s)</h3>
+
+        <p>
+            <strong>Length:</strong>
+            ${length} hexadecimal characters
+        </p>
+
+        <ul>
+            ${possibleHashes
+                .map(hashType => `<li>✅ ${hashType}</li>`)
+                .join("")}
+        </ul>
+
+        <p>
+            <small>
+                Hash identification based on length and
+                character pattern cannot guarantee the
+                original hashing algorithm.
+            </small>
+        </p>
+
+    `;
+}
+
+
+async function generateHash(algorithm) {
+
+    const input =
+        document.getElementById("hashTextInput");
+
+    const result =
+        document.getElementById("hashGenerateResult");
+
+    if (!input || !result) {
+        return;
+    }
+
+    const text = input.value;
+
+    if (text === "") {
+
+        result.innerHTML =
+            "<p>⚠️ Enter some text first.</p>";
+
+        return;
+    }
+
+    try {
+
+        const encoder = new TextEncoder();
+
+        const data = encoder.encode(text);
+
+        const hashBuffer =
+            await crypto.subtle.digest(
+                algorithm,
+                data
+            );
+
+        const hashArray =
+            Array.from(
+                new Uint8Array(hashBuffer)
+            );
+
+        const hashHex =
+            hashArray
+                .map(byte =>
+                    byte.toString(16).padStart(2, "0")
+                )
+                .join("");
+
+        result.innerHTML = `
+
+            <h3>🔐 ${algorithm}</h3>
+
+            <p>
+                <strong>Input:</strong>
+                ${text}
+            </p>
+
+            <p>
+                <strong>Hash:</strong>
+            </p>
+
+            <pre>${hashHex}</pre>
+
+        `;
+
+    } catch (error) {
+
+        console.error(error);
+
+        result.innerHTML =
+            "<p>❌ Unable to generate hash.</p>";
+
+    }
 }
