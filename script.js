@@ -1760,3 +1760,205 @@ function loadLogFile() {
 
     reader.readAsText(file);
 }
+function updateSOCDashboard() {
+
+    const input = document.getElementById("logInput");
+    const dashboard = document.getElementById("socDashboard");
+
+    if (!input || !dashboard) {
+        return;
+    }
+
+    const log = input.value.trim();
+
+    if (log === "") {
+        dashboard.innerHTML = "";
+        return;
+    }
+
+    const lines = log
+        .split(/\r?\n/)
+        .map(line => line.trim())
+        .filter(line => line !== "");
+
+    let failedLogins = 0;
+    let successfulLogins = 0;
+    let accountLockouts = 0;
+
+    const sourceIPs = {};
+    const usernames = {};
+
+    lines.forEach(function(line) {
+
+        const ipMatch =
+            line.match(
+                /\b(?:\d{1,3}\.){3}\d{1,3}\b/
+            );
+
+        if (ipMatch) {
+
+            const ip = ipMatch[0];
+
+            sourceIPs[ip] =
+                (sourceIPs[ip] || 0) + 1;
+        }
+
+
+        const userMatch =
+            line.match(
+                /(?:for|user|username)[ =]+([a-zA-Z0-9._-]+)/i
+            );
+
+        if (userMatch) {
+
+            const username = userMatch[1];
+
+            usernames[username] =
+                (usernames[username] || 0) + 1;
+        }
+
+
+        if (
+            /failed password/i.test(line) ||
+            /authentication failure/i.test(line) ||
+            /login failed/i.test(line) ||
+            /failed login/i.test(line)
+        ) {
+
+            failedLogins++;
+        }
+
+
+        if (
+            /accepted password/i.test(line) ||
+            /authentication successful/i.test(line) ||
+            /login successful/i.test(line)
+        ) {
+
+            successfulLogins++;
+        }
+
+
+        if (
+            /account locked/i.test(line) ||
+            /account lockout/i.test(line)
+        ) {
+
+            accountLockouts++;
+        }
+
+    });
+
+
+    const uniqueIPs =
+        Object.keys(sourceIPs).length;
+
+    const uniqueUsers =
+        Object.keys(usernames).length;
+
+
+    let topIP = "None";
+
+    let topIPCount = 0;
+
+    Object.keys(sourceIPs).forEach(function(ip) {
+
+        if (sourceIPs[ip] > topIPCount) {
+
+            topIP = ip;
+            topIPCount = sourceIPs[ip];
+
+        }
+
+    });
+
+
+    let topUser = "None";
+
+    let topUserCount = 0;
+
+    Object.keys(usernames).forEach(function(username) {
+
+        if (usernames[username] > topUserCount) {
+
+            topUser = username;
+            topUserCount = usernames[username];
+
+        }
+
+    });
+
+
+    let severity = "Low";
+
+    if (accountLockouts > 0) {
+
+        severity = "High";
+
+    } else if (failedLogins >= 3) {
+
+        severity = "High";
+
+    } else if (failedLogins > 0) {
+
+        severity = "Medium";
+    }
+
+
+    dashboard.innerHTML = `
+
+        <div class="card">
+
+            <h3>📊 SOC Dashboard</h3>
+
+            <p>
+                <strong>Total Events:</strong>
+                ${lines.length}
+            </p>
+
+            <p>
+                <strong>Failed Logins:</strong>
+                ${failedLogins}
+            </p>
+
+            <p>
+                <strong>Successful Logins:</strong>
+                ${successfulLogins}
+            </p>
+
+            <p>
+                <strong>Account Lockouts:</strong>
+                ${accountLockouts}
+            </p>
+
+            <p>
+                <strong>Unique Source IPs:</strong>
+                ${uniqueIPs}
+            </p>
+
+            <p>
+                <strong>Unique Usernames:</strong>
+                ${uniqueUsers}
+            </p>
+
+            <p>
+                <strong>Top Source IP:</strong>
+                ${topIP}
+                (${topIPCount} event(s))
+            </p>
+
+            <p>
+                <strong>Most Targeted Username:</strong>
+                ${topUser}
+                (${topUserCount} event(s))
+            </p>
+
+            <p>
+                <strong>Overall Severity:</strong>
+                ${severity}
+            </p>
+
+        </div>
+
+    `;
+}

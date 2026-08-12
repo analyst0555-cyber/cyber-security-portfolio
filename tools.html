@@ -321,7 +321,7 @@
 
     <label for="logFile">
     📁 Upload a log file
-</label>
+    </label>
 
 <input
     type="file"
@@ -341,6 +341,7 @@
     </button>
 
     <div id="logResult"></div>
+    <div id="socDashboard"></div>
 
 </div>
 
@@ -743,6 +744,7 @@
             ) {
 
                 result.innerHTML =
+                    updateSOCDashboard();
                     "<p>Please enter a valid IP address and subnet mask.</p>";
 
                 return;
