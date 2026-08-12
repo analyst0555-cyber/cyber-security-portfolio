@@ -983,41 +983,234 @@ function analyzeIP() {
     const ip = ipInput.value.trim();
     const cidrValue = cidrInput.value.trim();
 
+    if (ip === "") {
+        result.innerHTML = "<p>⚠️ Please enter an IP address.</p>";
+        return;
+    }
+
+    /*
+     * ==========================================
+     * IPv6
+     * ==========================================
+     */
+
+    if (ip.includes(":")) {
+
+        function isValidIPv6(address) {
+
+            if (address.includes(".")) {
+                return false;
+            }
+
+            if ((address.match(/::/g) || []).length > 1) {
+                return false;
+            }
+
+            const parts = address.split(":");
+
+            if (address.includes("::")) {
+
+                const left = address.split("::")[0];
+                const right = address.split("::")[1];
+
+                const leftParts =
+                    left === "" ? [] : left.split(":");
+
+                const rightParts =
+                    right === "" ? [] : right.split(":");
+
+                if (
+                    leftParts.length +
+                    rightParts.length >= 8
+                ) {
+                    return false;
+                }
+
+                const allParts =
+                    leftParts.concat(rightParts);
+
+                return allParts.every(function (part) {
+                    return /^[0-9a-fA-F]{1,4}$/.test(part);
+                });
+
+            } else {
+
+                if (parts.length !== 8) {
+                    return false;
+                }
+
+                return parts.every(function (part) {
+                    return /^[0-9a-fA-F]{1,4}$/.test(part);
+                });
+            }
+        }
+
+        if (!isValidIPv6(ip)) {
+
+            result.innerHTML =
+                "<p>❌ Invalid IPv6 address.</p>";
+
+            return;
+        }
+
+        let cidr =
+            cidrValue === ""
+                ? 128
+                : Number(cidrValue);
+
+        if (
+            !Number.isInteger(cidr) ||
+            cidr < 0 ||
+            cidr > 128
+        ) {
+
+            result.innerHTML =
+                "<p>❌ IPv6 CIDR must be between 0 and 128.</p>";
+
+            return;
+        }
+
+        let classification = "Global / Public";
+
+        const lowerIP = ip.toLowerCase();
+
+        if (lowerIP === "::1") {
+            classification = "Loopback";
+        }
+        else if (
+            lowerIP.startsWith("fe8:") ||
+            lowerIP.startsWith("fe9:") ||
+            lowerIP.startsWith("fea:") ||
+            lowerIP.startsWith("feb:")
+        ) {
+            classification = "Link-local";
+        }
+        else if (
+            lowerIP.startsWith("fc") ||
+            lowerIP.startsWith("fd")
+        ) {
+            classification = "Unique Local Address";
+        }
+        else if (
+            lowerIP.startsWith("ff")
+        ) {
+            classification = "Multicast";
+        }
+
+        result.innerHTML = `
+
+            <div class="card">
+
+                <h3>🌐 IPv6 Analysis</h3>
+
+                <p>
+                    <strong>IP Address:</strong>
+                    ${ip}
+                </p>
+
+                <p>
+                    <strong>Type:</strong>
+                    IPv6
+                </p>
+
+                <p>
+                    <strong>Classification:</strong>
+                    ${classification}
+                </p>
+
+                <p>
+                    <strong>CIDR:</strong>
+                    /${cidr}
+                </p>
+
+                <p>
+                    <strong>Address Size:</strong>
+                    128 bits
+                </p>
+
+                <p>
+                    <strong>Address Space:</strong>
+                    2<sup>128</sup> possible addresses
+                </p>
+
+                <p>
+                    <strong>Network Prefix:</strong>
+                    /${cidr}
+                </p>
+
+                <p>
+                    <small>
+                        IPv6 address validation and
+                        classification are performed
+                        locally in your browser.
+                    </small>
+                </p>
+
+            </div>
+
+        `;
+
+        return;
+    }
+
+
+    /*
+     * ==========================================
+     * IPv4
+     * ==========================================
+     */
+
     const octets = ip.split(".");
 
     if (
         octets.length !== 4 ||
-        octets.some(
-            octet =>
+        octets.some(function (octet) {
+
+            return (
                 !/^\d+$/.test(octet) ||
                 Number(octet) < 0 ||
                 Number(octet) > 255
-        )
+            );
+
+        })
     ) {
+
         result.innerHTML =
             "<p>❌ Invalid IPv4 address.</p>";
+
         return;
     }
 
     const numbers = octets.map(Number);
 
-    let cidr = cidrValue === ""
-        ? 32
-        : Number(cidrValue);
+    let cidr =
+        cidrValue === ""
+            ? 32
+            : Number(cidrValue);
 
     if (
         !Number.isInteger(cidr) ||
         cidr < 0 ||
         cidr > 32
     ) {
+
         result.innerHTML =
-            "<p>❌ CIDR must be between 0 and 32.</p>";
+            "<p>❌ IPv4 CIDR must be between 0 and 32.</p>";
+
         return;
     }
 
     const ipNumber =
-        (((numbers[0] * 256 + numbers[1]) * 256 +
-            numbers[2]) * 256 + numbers[3]) >>> 0;
+        (
+            (
+                (
+                    numbers[0] * 256 +
+                    numbers[1]
+                ) * 256 +
+                numbers[2]
+            ) * 256 +
+            numbers[3]
+        ) >>> 0;
 
     const mask =
         cidr === 0
@@ -1063,9 +1256,7 @@ function analyzeIP() {
         classification = "Private";
     }
 
-    if (
-        numbers[0] === 127
-    ) {
+    if (numbers[0] === 127) {
         classification = "Loopback";
     }
 
@@ -1076,21 +1267,27 @@ function analyzeIP() {
         classification = "Link-local";
     }
 
-    let usableHosts = 0;
+    let usableHosts;
 
     if (cidr <= 30) {
         usableHosts =
             Math.pow(2, 32 - cidr) - 2;
-    } else if (cidr === 31) {
+    }
+    else if (cidr === 31) {
         usableHosts = 2;
-    } else {
+    }
+    else {
         usableHosts = 1;
     }
 
-    let firstHost = networkIP;
-    let lastHost = broadcastIP;
+    let firstHost =
+        networkIP;
+
+    let lastHost =
+        broadcastIP;
 
     if (cidr <= 30) {
+
         firstHost =
             numberToIP(network + 1);
 
@@ -1102,7 +1299,7 @@ function analyzeIP() {
 
         <div class="card">
 
-            <h3>🌐 IP Analysis</h3>
+            <h3>🌐 IPv4 Analysis</h3>
 
             <p>
                 <strong>IP Address:</strong>
