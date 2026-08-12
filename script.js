@@ -1364,112 +1364,297 @@ function analyzeLog() {
     if (log === "") {
 
         result.innerHTML =
-            "<p>⚠️ Please paste a log entry.</p>";
+            "<p>⚠️ Please paste one or more log entries.</p>";
 
         return;
     }
 
-    let eventType = "Unknown Event";
+    const lines = log
+        .split(/\r?\n/)
+        .map(line => line.trim())
+        .filter(line => line !== "");
+
+    let failedLogins = 0;
+    let successfulLogins = 0;
+    let accountLockouts = 0;
+
+    const sourceIPs = {};
+    const usernames = {};
+
+    lines.forEach(function(line) {
+
+        /*
+         * Extract IP address
+         */
+
+        const ipMatch =
+            line.match(
+                /\b(?:\d{1,3}\.){3}\d{1,3}\b/
+            );
+
+        if (ipMatch) {
+
+            const ip = ipMatch[0];
+
+            if (!sourceIPs[ip]) {
+                sourceIPs[ip] = 0;
+            }
+
+            sourceIPs[ip]++;
+        }
+
+
+        /*
+         * Extract username
+         */
+
+        const userMatch =
+            line.match(
+                /(?:for|user|username)[ =]+([a-zA-Z0-9._-]+)/i
+            );
+
+        if (userMatch) {
+
+            const username = userMatch[1];
+
+            if (!usernames[username]) {
+                usernames[username] = 0;
+            }
+
+            usernames[username]++;
+        }
+
+
+        /*
+         * Failed authentication
+         */
+
+        if (
+            /failed password/i.test(line) ||
+            /authentication failure/i.test(line) ||
+            /login failed/i.test(line) ||
+            /failed login/i.test(line)
+        ) {
+
+            failedLogins++;
+        }
+
+
+        /*
+         * Successful authentication
+         */
+
+        if (
+            /accepted password/i.test(line) ||
+            /authentication successful/i.test(line) ||
+            /login successful/i.test(line)
+        ) {
+
+            successfulLogins++;
+        }
+
+
+        /*
+         * Account lockout
+         */
+
+        if (
+            /account locked/i.test(line) ||
+            /account lockout/i.test(line)
+        ) {
+
+            accountLockouts++;
+        }
+
+    });
+
+
+    /*
+     * Brute-force detection
+     */
+
+    let bruteForceDetected = false;
+    let suspiciousIP = "";
+
+    for (const ip in sourceIPs) {
+
+        if (sourceIPs[ip] >= 3) {
+
+            bruteForceDetected = true;
+            suspiciousIP = ip;
+
+            break;
+        }
+    }
+
+
+    /*
+     * Determine severity
+     */
+
     let severity = "Low";
-    let username = "Not detected";
-    let sourceIP = "Not detected";
 
-    /*
-     * Detect source IP
-     */
-
-    const ipMatch =
-        log.match(
-            /\b(?:\d{1,3}\.){3}\d{1,3}\b/
-        );
-
-    if (ipMatch) {
-        sourceIP = ipMatch[0];
+    if (accountLockouts > 0) {
+        severity = "High";
     }
-
-
-    /*
-     * Detect username
-     */
-
-    const userMatch =
-        log.match(
-            /(?:for|user|username)[ =]+([a-zA-Z0-9._-]+)/i
-        );
-
-    if (userMatch) {
-        username = userMatch[1];
+    else if (bruteForceDetected) {
+        severity = "High";
     }
-
-
-    /*
-     * Detect failed authentication
-     */
-
-    if (
-        /failed password/i.test(log) ||
-        /authentication failure/i.test(log) ||
-        /login failed/i.test(log) ||
-        /failed login/i.test(log)
-    ) {
-
-        eventType = "Failed Authentication";
+    else if (failedLogins > 0) {
         severity = "Medium";
-
     }
 
 
     /*
-     * Detect successful authentication
+     * Event classification
      */
 
-    else if (
-        /accepted password/i.test(log) ||
-        /authentication successful/i.test(log) ||
-        /login successful/i.test(log)
-    ) {
+    let eventType = "General Authentication Activity";
 
-        eventType = "Successful Authentication";
-        severity = "Low";
+    if (bruteForceDetected) {
 
+        eventType =
+            "Possible Brute-Force Activity";
+
+    }
+    else if (accountLockouts > 0) {
+
+        eventType =
+            "Account Lockout Activity";
+
+    }
+    else if (failedLogins > 0) {
+
+        eventType =
+            "Failed Authentication Activity";
+
+    }
+    else if (successfulLogins > 0) {
+
+        eventType =
+            "Successful Authentication Activity";
     }
 
 
     /*
-     * Detect account activity
+     * Build IP summary
      */
 
-    else if (
-        /account locked/i.test(log) ||
-        /account lockout/i.test(log)
-    ) {
+    let ipSummary = "";
 
-        eventType = "Account Lockout";
-        severity = "High";
+    const ipList =
+        Object.keys(sourceIPs);
 
+    if (ipList.length === 0) {
+
+        ipSummary =
+            "<li>No source IP addresses detected.</li>";
+
+    }
+    else {
+
+        ipSummary = ipList
+            .map(function(ip) {
+
+                return `
+                    <li>
+                        <strong>${ip}</strong>
+                        → ${sourceIPs[ip]} event(s)
+                    </li>
+                `;
+
+            })
+            .join("");
     }
 
 
     /*
-     * Detect suspicious activity
+     * Build username summary
      */
 
-    if (
-        /brute.?force/i.test(log) ||
-        /multiple failed/i.test(log)
-    ) {
+    let usernameSummary = "";
 
-        eventType = "Possible Brute-Force Activity";
-        severity = "High";
+    const usernameList =
+        Object.keys(usernames);
+
+    if (usernameList.length === 0) {
+
+        usernameSummary =
+            "<li>No usernames detected.</li>";
 
     }
+    else {
 
+        usernameSummary = usernameList
+            .map(function(username) {
+
+                return `
+                    <li>
+                        <strong>${username}</strong>
+                        → ${usernames[username]} event(s)
+                    </li>
+                `;
+
+            })
+            .join("");
+    }
+
+
+    /*
+     * Detection message
+     */
+
+    let detectionMessage =
+        "No obvious repeated authentication pattern detected.";
+
+    if (bruteForceDetected) {
+
+        detectionMessage =
+            `⚠️ Possible brute-force activity detected from ${suspiciousIP}.`;
+
+    }
+    else if (accountLockouts > 0) {
+
+        detectionMessage =
+            "⚠️ Account lockout activity detected.";
+
+    }
+    else if (failedLogins > 0) {
+
+        detectionMessage =
+            "⚠️ Failed authentication activity detected.";
+    }
+
+
+    /*
+     * Display result
+     */
 
     result.innerHTML = `
 
         <div class="card">
 
-            <h3>🛡️ SOC Analysis Result</h3>
+            <h3>📊 SOC Log Analysis</h3>
+
+            <p>
+                <strong>Total Events:</strong>
+                ${lines.length}
+            </p>
+
+            <p>
+                <strong>Failed Logins:</strong>
+                ${failedLogins}
+            </p>
+
+            <p>
+                <strong>Successful Logins:</strong>
+                ${successfulLogins}
+            </p>
+
+            <p>
+                <strong>Account Lockouts:</strong>
+                ${accountLockouts}
+            </p>
 
             <p>
                 <strong>Event Type:</strong>
@@ -1481,28 +1666,33 @@ function analyzeLog() {
                 ${severity}
             </p>
 
-            <p>
-                <strong>Username:</strong>
-                ${username}
-            </p>
+
+            <h3>🌐 Source IP Summary</h3>
+
+            <ul>
+                ${ipSummary}
+            </ul>
+
+
+            <h3>👤 Username Summary</h3>
+
+            <ul>
+                ${usernameSummary}
+            </ul>
+
+
+            <h3>🚨 Detection</h3>
 
             <p>
-                <strong>Source IP:</strong>
-                ${sourceIP}
+                ${detectionMessage}
             </p>
 
-            <h3>📋 Analyst Notes</h3>
-
-            <p>
-                This analysis is based on recognizable
-                patterns in the supplied log.
-            </p>
 
             <p>
                 <small>
-                    Automated classification is an
-                    initial triage aid and should not
-                    replace analyst investigation.
+                    This is an automated triage aid.
+                    Results should be validated by a
+                    security analyst before taking action.
                 </small>
             </p>
 
