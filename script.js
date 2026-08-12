@@ -1349,4 +1349,164 @@ function analyzeIP() {
         </div>
 
     `;
+}   
+function analyzeLog() {
+
+    const input = document.getElementById("logInput");
+    const result = document.getElementById("logResult");
+
+    if (!input || !result) {
+        return;
+    }
+
+    const log = input.value.trim();
+
+    if (log === "") {
+
+        result.innerHTML =
+            "<p>⚠️ Please paste a log entry.</p>";
+
+        return;
+    }
+
+    let eventType = "Unknown Event";
+    let severity = "Low";
+    let username = "Not detected";
+    let sourceIP = "Not detected";
+
+    /*
+     * Detect source IP
+     */
+
+    const ipMatch =
+        log.match(
+            /\b(?:\d{1,3}\.){3}\d{1,3}\b/
+        );
+
+    if (ipMatch) {
+        sourceIP = ipMatch[0];
+    }
+
+
+    /*
+     * Detect username
+     */
+
+    const userMatch =
+        log.match(
+            /(?:for|user|username)[ =]+([a-zA-Z0-9._-]+)/i
+        );
+
+    if (userMatch) {
+        username = userMatch[1];
+    }
+
+
+    /*
+     * Detect failed authentication
+     */
+
+    if (
+        /failed password/i.test(log) ||
+        /authentication failure/i.test(log) ||
+        /login failed/i.test(log) ||
+        /failed login/i.test(log)
+    ) {
+
+        eventType = "Failed Authentication";
+        severity = "Medium";
+
+    }
+
+
+    /*
+     * Detect successful authentication
+     */
+
+    else if (
+        /accepted password/i.test(log) ||
+        /authentication successful/i.test(log) ||
+        /login successful/i.test(log)
+    ) {
+
+        eventType = "Successful Authentication";
+        severity = "Low";
+
+    }
+
+
+    /*
+     * Detect account activity
+     */
+
+    else if (
+        /account locked/i.test(log) ||
+        /account lockout/i.test(log)
+    ) {
+
+        eventType = "Account Lockout";
+        severity = "High";
+
+    }
+
+
+    /*
+     * Detect suspicious activity
+     */
+
+    if (
+        /brute.?force/i.test(log) ||
+        /multiple failed/i.test(log)
+    ) {
+
+        eventType = "Possible Brute-Force Activity";
+        severity = "High";
+
+    }
+
+
+    result.innerHTML = `
+
+        <div class="card">
+
+            <h3>🛡️ SOC Analysis Result</h3>
+
+            <p>
+                <strong>Event Type:</strong>
+                ${eventType}
+            </p>
+
+            <p>
+                <strong>Severity:</strong>
+                ${severity}
+            </p>
+
+            <p>
+                <strong>Username:</strong>
+                ${username}
+            </p>
+
+            <p>
+                <strong>Source IP:</strong>
+                ${sourceIP}
+            </p>
+
+            <h3>📋 Analyst Notes</h3>
+
+            <p>
+                This analysis is based on recognizable
+                patterns in the supplied log.
+            </p>
+
+            <p>
+                <small>
+                    Automated classification is an
+                    initial triage aid and should not
+                    replace analyst investigation.
+                </small>
+            </p>
+
+        </div>
+
+    `;
 }
