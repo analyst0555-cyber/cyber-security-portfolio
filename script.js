@@ -1699,4 +1699,64 @@ function analyzeLog() {
         </div>
 
     `;
+}   
+function loadLogFile() {
+
+    const fileInput =
+        document.getElementById("logFile");
+
+    const logInput =
+        document.getElementById("logInput");
+
+    if (!fileInput || !logInput) {
+        return;
+    }
+
+    const file = fileInput.files[0];
+
+    if (!file) {
+        return;
+    }
+
+    const allowedTypes = [
+        ".log",
+        ".txt"
+    ];
+
+    const fileName =
+        file.name.toLowerCase();
+
+    const validFile =
+        allowedTypes.some(function(extension) {
+            return fileName.endsWith(extension);
+        });
+
+    if (!validFile) {
+
+        alert(
+            "Please select a .log or .txt file."
+        );
+
+        fileInput.value = "";
+        return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = function(event) {
+
+        logInput.value =
+            event.target.result;
+
+    };
+
+    reader.onerror = function() {
+
+        alert(
+            "Unable to read the selected file."
+        );
+
+    };
+
+    reader.readAsText(file);
 }
