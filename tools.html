@@ -276,6 +276,38 @@
 
 </div>
 
+<!-- IP INTELLIGENCE -->
+
+<div class="card">
+
+    <h2>🌐 IP Intelligence</h2>
+
+    <p>
+        Analyze an IPv4 address and optional CIDR prefix.
+    </p>
+
+    <input
+        type="text"
+        id="ipInput"
+        placeholder="192.168.1.10"
+    >
+
+    <input
+        type="number"
+        id="cidrInput"
+        placeholder="CIDR (e.g. 24)"
+        min="0"
+        max="32"
+    >
+
+    <button type="button" onclick="analyzeIP()">
+        Analyze IP
+    </button>
+
+    <div id="ipResult"></div>
+
+</div>
+
 
         <!-- ================================= -->
         <!-- PORT SEARCH -->

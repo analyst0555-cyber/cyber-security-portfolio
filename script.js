@@ -970,3 +970,186 @@ async function generateHash(algorithm) {
 
     }
 }
+function analyzeIP() {
+
+    const ipInput = document.getElementById("ipInput");
+    const cidrInput = document.getElementById("cidrInput");
+    const result = document.getElementById("ipResult");
+
+    if (!ipInput || !cidrInput || !result) {
+        return;
+    }
+
+    const ip = ipInput.value.trim();
+    const cidrValue = cidrInput.value.trim();
+
+    const octets = ip.split(".");
+
+    if (
+        octets.length !== 4 ||
+        octets.some(
+            octet =>
+                !/^\d+$/.test(octet) ||
+                Number(octet) < 0 ||
+                Number(octet) > 255
+        )
+    ) {
+        result.innerHTML =
+            "<p>❌ Invalid IPv4 address.</p>";
+        return;
+    }
+
+    const numbers = octets.map(Number);
+
+    let cidr = cidrValue === ""
+        ? 32
+        : Number(cidrValue);
+
+    if (
+        !Number.isInteger(cidr) ||
+        cidr < 0 ||
+        cidr > 32
+    ) {
+        result.innerHTML =
+            "<p>❌ CIDR must be between 0 and 32.</p>";
+        return;
+    }
+
+    const ipNumber =
+        (((numbers[0] * 256 + numbers[1]) * 256 +
+            numbers[2]) * 256 + numbers[3]) >>> 0;
+
+    const mask =
+        cidr === 0
+            ? 0
+            : (0xFFFFFFFF << (32 - cidr)) >>> 0;
+
+    const network =
+        (ipNumber & mask) >>> 0;
+
+    const broadcast =
+        (network | (~mask >>> 0)) >>> 0;
+
+    function numberToIP(number) {
+
+        return [
+            (number >>> 24) & 255,
+            (number >>> 16) & 255,
+            (number >>> 8) & 255,
+            number & 255
+        ].join(".");
+    }
+
+    const networkIP =
+        numberToIP(network);
+
+    const broadcastIP =
+        numberToIP(broadcast);
+
+    let classification = "Public";
+
+    if (
+        numbers[0] === 10 ||
+        (
+            numbers[0] === 172 &&
+            numbers[1] >= 16 &&
+            numbers[1] <= 31
+        ) ||
+        (
+            numbers[0] === 192 &&
+            numbers[1] === 168
+        )
+    ) {
+        classification = "Private";
+    }
+
+    if (
+        numbers[0] === 127
+    ) {
+        classification = "Loopback";
+    }
+
+    if (
+        numbers[0] === 169 &&
+        numbers[1] === 254
+    ) {
+        classification = "Link-local";
+    }
+
+    let usableHosts = 0;
+
+    if (cidr <= 30) {
+        usableHosts =
+            Math.pow(2, 32 - cidr) - 2;
+    } else if (cidr === 31) {
+        usableHosts = 2;
+    } else {
+        usableHosts = 1;
+    }
+
+    let firstHost = networkIP;
+    let lastHost = broadcastIP;
+
+    if (cidr <= 30) {
+        firstHost =
+            numberToIP(network + 1);
+
+        lastHost =
+            numberToIP(broadcast - 1);
+    }
+
+    result.innerHTML = `
+
+        <div class="card">
+
+            <h3>🌐 IP Analysis</h3>
+
+            <p>
+                <strong>IP Address:</strong>
+                ${ip}
+            </p>
+
+            <p>
+                <strong>Type:</strong>
+                IPv4
+            </p>
+
+            <p>
+                <strong>Classification:</strong>
+                ${classification}
+            </p>
+
+            <p>
+                <strong>CIDR:</strong>
+                /${cidr}
+            </p>
+
+            <p>
+                <strong>Network Address:</strong>
+                ${networkIP}
+            </p>
+
+            <p>
+                <strong>Broadcast Address:</strong>
+                ${broadcastIP}
+            </p>
+
+            <p>
+                <strong>First Usable Host:</strong>
+                ${firstHost}
+            </p>
+
+            <p>
+                <strong>Last Usable Host:</strong>
+                ${lastHost}
+            </p>
+
+            <p>
+                <strong>Usable Hosts:</strong>
+                ${usableHosts}
+            </p>
+
+        </div>
+
+    `;
+}
